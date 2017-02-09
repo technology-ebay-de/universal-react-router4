@@ -11,6 +11,9 @@ import 'whatwg-fetch';
 import Sidebar from './Sidebar';
 import SidebarItem from './SidebarItem';
 import Main from './Main';
+import Gist from './Gist';
+import Home from './Home';
+import { Link, Route } from 'react-router-dom';
 
 const style = {
     display: 'flex',
@@ -39,16 +42,26 @@ export default class extends Component {
                     {
                         gists ? gists.map(gist => (
                                 <SidebarItem key={gist.id}>
-                                    {gist.description || '[no description]'}
+                                    <Link to={`/g/${gist.id}`}>
+                                        {gist.description || '[no description]'}
+                                    </Link>
                                 </SidebarItem>
                             )) : (<div>Loading…</div>)
                     }
                 </Sidebar>
                 <Main>
-                    <h1>Welcome to Zombo.com!</h1>
+                    <Route path="/" exact component={Home} />
+                    {
+                        gists && (
+                            <Route path="/g/:gistId" render={
+                                ({ match }) => (
+                                    <Gist gist={gists.find(g => g.id === match.params.gistId)} />
+                                )
+                            } />
+                        )
+                    }
                 </Main>
             </div>
-
         );
     }
 }

@@ -12,7 +12,8 @@ const style = {
     padding: '16px',
     backgroundColor: '#eee',
     width: '300px',
-    minHeight: '100vh'
+    height: '100vh',
+    overflow: 'scroll'
 };
 
 export default ({ children }) => (<aside style={style}>{children}</aside>);

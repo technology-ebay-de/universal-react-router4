@@ -12,6 +12,10 @@ import express from 'express';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import App from '../shared/App';
+import { StaticRouter as Router } from 'react-router';
+import sourceMapSupport from 'source-map-support';
+
+sourceMapSupport.install();
 
 const app = express();
 app.use(express.static('./dist'));
@@ -33,7 +37,11 @@ app.get('/', (req, res) => res.send(`
 </head>
 <body>
     <div id="app">
-        ${renderToStaticMarkup(<App />)}
+        ${renderToStaticMarkup(
+            <Router context={{}} location={req.url}>
+                <App />
+            </Router>
+        )}
     </div>
     <script src="client.js"></script>
 </body>
