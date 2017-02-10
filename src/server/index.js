@@ -10,40 +10,44 @@
 
 import express from 'express';
 import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import App from '../shared/App';
-import { StaticRouter as Router } from 'react-router';
+import NoMatch from '../shared/NoMatch';
+import Error from '../shared/Error';
+import { StaticRouter as Router, matchPath } from 'react-router';
 import sourceMapSupport from 'source-map-support';
+import render from './render';
+import fetch from 'node-fetch';
+
+const routes = [
+    '/',
+    '/g/:gistId'
+];
 
 sourceMapSupport.install();
 
 const app = express();
 app.use('/static', express.static('./dist'));
 
-app.get('*', (req, res) => res.send(`<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Universal React Router 4 Demo</title>
-        <style>
-            body {
-                font-family: Helvetica Neue, Arial, sans-serif;
-                margin: 0;
-            }
-            html { box-sizing: border-box; }
-            *, *:before, *:after { box-sizing: inherit; }
-        </style>
-    </head>
-    <body>
-        <div id="app">
-            ${renderToStaticMarkup(
-                <Router context={{}} location={req.url}>
-                    <App />
-                </Router>
-            )}
-        </div>
-        <script src="/static/client.js"></script>
-    </body>
-</html>`));
+app.get('*', (req, res) => {
+    const match = routes.reduce((acc, route) => matchPath(req.url, route, { exact: true }) || acc, null);
+    if (!match) {
+        res.status(404).send(render(<NoMatch />));
+        return;
+    }
+    fetch('https://api.github.com/gists')
+        .then(r => r.json())
+        .then(gists => {
+            res.status(200).send(render(
+                (
+                    <Router context={{}} location={req.url}>
+                        <App gists={gists} />
+                    </Router>
+                ), gists
+            ));
+        }).catch(err => {
+            console.error(err);
+            res.status(500).send(render(<Error />));
+        });
+});
 
 app.listen(3000, () => console.log('Demo app listening on port 3000'));
