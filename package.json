@@ -15,7 +15,7 @@
     "url": "https://github.com/pahund/universal-react-router4.git"
   },
   "author": "Patrick Hund <pahund@team.mobile.de>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/pahund/universal-react-router4/issues"
   },
